@@ -59,7 +59,7 @@ gen_seed            =  -1
 constraint_algorithm = shake
 Shake-SOR            = no
 shake-tol            = 0.0001
-lincs_iter           = 1000    ; maximum lincs-iters
-lincs_order	         = 4
+; lincs_iter         = 1000    ; maximum lincs-iters
+; lincs_order	     = 4
 constraints          = all-bonds
 
