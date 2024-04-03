@@ -2,19 +2,19 @@
 
 This repository contains the code used for the paper titled [Accurate and efficient constrained molecular dynamics of polymers using Newton's method and special purpose code](https://www.sciencedirect.com/science/article/pii/S0010465523000875). The repository includes a modified version of GROMACS-2021 that implements ILVES-PC, the constraint solver presented in the paper as an alternative to the default ones, the modification of P-LINCS that allows setting the desired tolerance, and [the files required to run the simulations described in the paper](simulations).
 
-# Abstract
+## Abstract
 
 In molecular dynamics simulations we can often increase the time step by imposing constraints on bond lengths and bond angles. This allows us to extend the length of the time interval and therefore the range of physical phenomena that we can afford to simulate. We examine the existing algorithms and software for solving nonlinear constraint equations in parallel and we explain why it is necessary to advance the state-of-the-art. We present ILVES-PC, a new algorithm for imposing bond constraints on proteins accurately and efficiently. It solves the same system of differential algebraic equations as the celebrated SHAKE algorithm, but ILVES-PC solves the nonlinear constraint equations using Newton's method rather than the nonlinear Gauss-Seidel method. Moreover, ILVES-PC solves the necessary linear systems using a specialized linear solver that exploits the structure of the protein. ILVES-PC can rapidly solve constraint equations as accurately as the hardware will allow. The run-time of ILVES-PC is proportional to the number of constraints. We have integrated ILVES-PC into GROMACS and simulated proteins of different sizes. Compared with SHAKE, we have achieved speedups of up to 4.9$\times$ in single-threaded executions and up to 76$\times$ in shared-memory multi-threaded executions. Moreover, ILVES-PC is more accurate than P-LINCS algorithm. Our work is a proof-of-concept of the utility of software designed specifically for the simulation of polymers.
 
-# Modified GROMACS
+## Modified GROMACS
 
 The implementation of ILVES-PC integrated into GROMACS can be found in [IlvesPC.h](GROMACS/src/gromacs/mdlib/IlvesPC.h) and [IlvesPC.cpp](GROMACS/src/gromacs/mdlib/IlvesPC.cpp). The original P-LINCS ([lincs.h](GROMACS/src/gromacs/mdlib/lincs.h) and [lincs.cpp](GROMACS/src/gromacs/mdlib/lincs.cpp)) has been replaced with our modified version, which allows setting the desired tolerance.
 
-# Installation of GROMACS
+## Installation of GROMACS
 
 To install GROMACS, you can follow the [installation guide provided by GROMACS](https://manual.gromacs.org/documentation/2021/install-guide/index.html). **It is essential to generate a double-precision installation** in order to be able to use the constraint solvers with low tolerances. This is achieved by appending the flag `-DGMX_DOUBLE=on` to the CMake command. Note that our constraint solver does not support MPI, so it is recommended to generate an OpenMP-only installation (default).
 
-## Installation Example:
+### Installation Example:
 ```
 cd GROMACS
 mkdir build
@@ -25,11 +25,11 @@ sudo make install
 source /usr/local/gromacs/bin/GMXRC
 ```
 
-# Simulations
+## Simulations
 
 We include the `.pdb` files of the molecules presented in the paper ([simulations/molecules](simulations/molecules) folder), along with the `.mdp` files used to generate the files for the production simulations ([simulations/mdps](simulations/mdps) folder). Additionally, we include the pre-generated files for the production simulations ([production](simulations/molecules/barnase/production) folder of each molecule).
 
-## Generate Files for a Production Simulation
+### Generate Files for a Production Simulation
 
 Follow the next steps if you want to use our already generated files (this is an example, you will need to modify the file names).
 ```
@@ -148,7 +148,7 @@ EOF
 gmx_d grompp -f md_prod.mdp -c equil3.gro -r equil3.gro -t state.cpt -p topol.top -o prod.tpr
 ```
 
-## Execute a Production Simulation
+### Execute a Production Simulation
 
 In order to use ILVES-PC instead of the default constraint solvers, you must set the `USE_ILVES_PC` environment variable to `1`. Also, to set the tolerance of the solver, change the `shake-tol` parameter of the `.mdp` used to generate the `.tpr` file. Note that our modified version of P-LINCS also uses the `shake-tol` parameter as its tolerance and that the `lincs-iter` parameter becomes the maximum number of iterations allowed to correct for rotational lengthening in LINCS, while in the original version is the fixed number of iterations executed. Below you will find just an example. The `.mdp` files in [simulations/mdps/production](simulations/mdps/production) folder will settle an NPT ([md_prod_shake_npt.mdp](simulations/mdps/production/md_prod_shake_npt.mdp), NVT ([md_prod_shake_nvt.mdp](simulations/mdps/production/md_prod_shake_nvt.mdp)) or NVE ([md_prod_shake_nve.mdp](simulations/mdps/production/md_prod_shake_nve.mdp)) simulation.
 
@@ -162,7 +162,11 @@ export USE_ILVES_PC=1
 gmx_d mdrun -ntmpi 1 -s tpr.tpr -x prod.xtc -c prod.gro -e prod.edr -g gromacs.log -nsteps 50000
 ```
 
-# Cite Us
+## License
+
+This repository, containing a modified version of GROMACS-2021 integrated with ILVES-PC, is licensed under the GNU Lesser General Public License (LGPL) version 2.1, the same license used by GROMACS.
+
+## Cite Us
 
 > **Lorién López-Villellas, Carl Christian Kjelgaard Mikkelsen, Juan José Galano-Frutos, Santiago Marco-Sola, Jesús Alastruey-Benedé, Pablo Ibáñez, Miquel Moretó, Javier Sancho, and Pablo García-Risueño** *Accurate and efficient constrained molecular dynamics of polymers using Newton's method and special purpose code*, In Computer Physics Communications. Volume 288, July 2023.
 
